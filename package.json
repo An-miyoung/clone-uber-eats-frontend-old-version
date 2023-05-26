@@ -27,6 +27,7 @@
   "scripts": {
     "tailwind:build": "tailwind build -i ./src/styles/tailwind.css -o ./src/styles/styles.css",
     "start": "npm run tailwind:build && react-scripts start",
+    "apollo:codegen": "apollo client:codegen src/__generated__ --target=typescript --outputFlat",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -51,5 +52,22 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.3.3"
+  },
+  "overrides": {
+    "@apollo/client": {
+      "react": "$react"
+    },
+    "@apollographql/graphql-language-service-interface": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-parser": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-types": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-utils": {
+      "graphql": "$graphql"
+    }
   }
 }
