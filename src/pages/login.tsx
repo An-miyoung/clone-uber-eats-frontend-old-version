@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import FormError from "../components/form-error";
 import { gql, useMutation } from "@apollo/client";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import uberLogo from "../images/logo.svg";
 import {
   loginMutation,
@@ -10,7 +10,8 @@ import {
 } from "../__generated__/loginMutation";
 import Button from "../components/button";
 import { Link } from "react-router-dom";
-import { isLoggedInVar } from "../apollo";
+import { authToken, isLoggedInVar } from "../apollo";
+import { LOCALSTORAGE_TOKEN } from "../constants";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
@@ -37,8 +38,9 @@ const Login = () => {
     const {
       login: { ok, token },
     } = data;
-    if (ok) {
-      console.log(token);
+    if (ok && token !== null) {
+      localStorage.setItem(LOCALSTORAGE_TOKEN, token);
+      authToken(token);
       isLoggedInVar(true);
     }
   };

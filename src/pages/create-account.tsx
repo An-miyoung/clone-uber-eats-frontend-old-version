@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import FormError from "../components/form-error";
 import { gql, useMutation } from "@apollo/client";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import uberLogo from "../images/logo.svg";
 import Button from "../components/button";
 import { Link, useHistory } from "react-router-dom";
