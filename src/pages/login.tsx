@@ -10,6 +10,7 @@ import {
 } from "../__generated__/loginMutation";
 import Button from "../components/button";
 import { Link } from "react-router-dom";
+import { isLoggedInVar } from "../apollo";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
@@ -33,12 +34,12 @@ const Login = () => {
     });
 
   const onCompleted = (data: loginMutation) => {
-    console.log(data);
     const {
       login: { ok, token },
     } = data;
     if (ok) {
       console.log(token);
+      isLoggedInVar(true);
     }
   };
 
