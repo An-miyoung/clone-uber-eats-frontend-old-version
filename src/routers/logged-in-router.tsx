@@ -1,21 +1,22 @@
 import React from "react";
-import { isLoggedInVar } from "../apollo";
-import { gql, useQuery } from "@apollo/client";
-import { meQuery } from "../__generated__/meQuery";
+import {
+  Redirect,
+  Route,
+  BrowserRouter as Router,
+  Switch,
+} from "react-router-dom";
+import Restaurants from "../pages/client/restaurants";
+import Header from "../components/header";
+import useMe from "../hooks/useMe";
 
-const ME_QUERY = gql`
-  query meQuery {
-    me {
-      id
-      email
-      role
-      verified
-    }
-  }
-`;
+const ClientRoutes = [
+  <Route path="/" exact>
+    <Restaurants />
+  </Route>,
+];
 
 const LoggedInRouter = () => {
-  const { data, loading, error } = useQuery<meQuery>(ME_QUERY);
+  const { data, loading, error } = useMe();
 
   if (!data || loading || error) {
     return (
@@ -25,9 +26,12 @@ const LoggedInRouter = () => {
     );
   }
   return (
-    <div>
-      <h1>{data.me.email}</h1>
-    </div>
+    <Router>
+      <Header />
+      <Switch>{data.me.role === "Client" && ClientRoutes}</Switch>
+      {/* 매칭되는 주소가 없다면 반드시 root로 돌아가게 하기 위해서 */}
+      <Redirect to="/" />
+    </Router>
   );
 };
 

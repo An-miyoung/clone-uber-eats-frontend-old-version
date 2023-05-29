@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import FormError from "../components/form-error";
 import { gql, useMutation } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
-import uberLogo from "../images/logo.svg";
 import {
   loginMutation,
   loginMutationVariables,
@@ -12,6 +11,7 @@ import Button from "../components/button";
 import { Link } from "react-router-dom";
 import { authToken, isLoggedInVar } from "../apollo";
 import { LOCALSTORAGE_TOKEN } from "../constants";
+import NuberLogo from "../components/nuberLogo";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
@@ -72,7 +72,9 @@ const Login = () => {
         <title>Login | Nuber Eats</title>
       </Helmet>
       <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
-        <img src={uberLogo} className="w-52 mb-10" alt="Uber Logo" />
+        <div className="w-52 mb-10">
+          <NuberLogo />
+        </div>
         <h4 className=" w-full font-medium text-left text-3xl mb-5">
           Welcome back
         </h4>
