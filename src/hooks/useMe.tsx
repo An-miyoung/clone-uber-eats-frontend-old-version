@@ -13,8 +13,7 @@ const ME_QUERY = gql`
 `;
 
 const useMe = () => {
-  const { data, loading, error } = useQuery<meQuery>(ME_QUERY);
-  return { data, loading, error };
+  return useQuery<meQuery>(ME_QUERY);
 };
 
 export default useMe;

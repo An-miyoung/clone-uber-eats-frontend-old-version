@@ -18,9 +18,11 @@ const Header = () => {
 
       <header className="py-4">
         <div className="container w-full px-5 lg:px-0  flex items-center justify-between">
-          <div className="w-24">
-            <NuberLogo />
-          </div>
+          <Link to="/">
+            <div className="w-24">
+              <NuberLogo />
+            </div>
+          </Link>
           <span className=" text-sm">
             <Link to="/edit-profile">
               <FontAwesomeIcon icon={faUser} className="text-xl" />

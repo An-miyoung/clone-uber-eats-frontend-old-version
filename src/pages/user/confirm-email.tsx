@@ -1,4 +1,4 @@
-import { gql, useApolloClient, useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import React, { useEffect } from "react";
 import {
   verifyEmail,
@@ -17,30 +17,33 @@ const VERIFY_EMAIL_MUTATION = gql`
 `;
 
 const ConfirmEmail = () => {
-  const client = useApolloClient();
-  const { data: userData } = useMe();
+  const { data: userData, refetch } = useMe();
   const history = useHistory();
 
-  const onCompleted = (data: verifyEmail) => {
+  const onCompleted = async (data: verifyEmail) => {
     const {
       verifyEmail: { ok },
     } = data;
 
     if (ok && userData?.me.id) {
-      // apollo client cache 의 verified 를 직접 바꿔준다. 다시 캐싱할 필요없게
-      client.writeFragment({
-        id: `User:${userData.me.id}`,
-        fragment: gql`
-          fragment VerifiedUser on User {
-            verified
-          }
-        `,
-        data: {
-          verified: true,
-        },
-      });
+      // 방법1 : apollo client cache 의 verified 를 직접 바꿔준다. 다시 캐싱할 필요없게
+      // client.writeFragment({
+      //   id: `User:${userData.me.id}`,
+      //   fragment: gql`
+      //     fragment VerifiedUser on User {
+      //       verified
+      //     }
+      //   `,
+      //   data: {
+      //     verified: true,
+      //   },
+      // });
+
+      // 방법2 : useQuery 가 제공하는 refetch 를 이용해 backend를 다시 읽어오면 cache 는 자동refresh
+      // confirm email은 이메일주소를 바꾼 후 일어나는 경우에 user data 가 바꿔서 어차피 refetch 가 일어나야 한다.
+      await refetch();
+      history.push("/");
     }
-    history.push("/");
   };
 
   const [verifyEmailMutation] = useMutation<verifyEmail, verifyEmailVariables>(
