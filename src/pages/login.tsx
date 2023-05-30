@@ -75,7 +75,7 @@ const Login = () => {
         <div className="w-52 mb-10">
           <NuberLogo />
         </div>
-        <h4 className=" w-full font-medium text-left text-3xl mb-5">
+        <h4 className=" w-full font-medium text-left text-3xl mb-5 mx-5">
           Welcome back
         </h4>
         <form

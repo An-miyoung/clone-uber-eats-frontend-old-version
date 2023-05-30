@@ -9,19 +9,27 @@ const Header = () => {
   const { data } = useMe();
 
   return (
-    <header className="py-4">
-      <div className="container bg-yellow-500 w-full px-5 lg:px-0  flex items-center justify-between">
-        <div className="w-24">
-          <NuberLogo />
+    <>
+      {!data?.me.verified && (
+        <div className="bg-red-500 p-3 text-center text-base text-white">
+          <span>Please verify your email.</span>
         </div>
-        <span className=" text-sm">
-          <Link to="/my-profile">
-            <FontAwesomeIcon icon={faUser} className="text-xl" />
-            {data?.me.email}
-          </Link>
-        </span>
-      </div>
-    </header>
+      )}
+
+      <header className="py-4">
+        <div className="container w-full px-5 lg:px-0  flex items-center justify-between">
+          <div className="w-24">
+            <NuberLogo />
+          </div>
+          <span className=" text-sm">
+            <Link to="/edit-profile">
+              <FontAwesomeIcon icon={faUser} className="text-xl" />
+              {data?.me.email}
+            </Link>
+          </span>
+        </div>
+      </header>
+    </>
   );
 };
 

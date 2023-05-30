@@ -641,7 +641,7 @@ video {
 .input {
   --tw-bg-opacity: 1;
   background-color: rgba(229, 231, 235, var(--tw-bg-opacity));
-  padding: 1.25rem;
+  padding: 0.5rem;
   font-size: 1.125rem;
   line-height: 1.75rem;
   font-weight: 300;
