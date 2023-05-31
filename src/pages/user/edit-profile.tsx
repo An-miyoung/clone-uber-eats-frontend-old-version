@@ -8,6 +8,7 @@ import {
   editProfileVariables,
 } from "../../__generated__/editProfile";
 import FormError from "../../components/form-error";
+import { Helmet } from "react-helmet-async";
 
 interface IFormProps {
   email?: string;
@@ -83,6 +84,9 @@ const EditProfile = () => {
 
   return (
     <div className=" mt-36 mx-8 flex flex-col items-center justify-center">
+      <Helmet>
+        <title>Edit Profile | Nuber Eats</title>
+      </Helmet>
       <h4 className=" font-semibold text-2xl mb-3">Edit Profile</h4>
       <form
         onSubmit={handleSubmit(onSubmit)}
