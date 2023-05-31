@@ -6,6 +6,13 @@ import {
 } from "../../__generated__/restaurantsPageQuery";
 import { Helmet } from "react-helmet-async";
 import Restaurant from "../../components/restaurant";
+import { useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
+import RESTAURANT_FRAGMENTS from "../../fragments";
+
+interface IFormProps {
+  searchTerm: string;
+}
 
 const RESTAURANTS_QUERY = gql`
   query restaurantsPageQuery($input: RestaurantsInput!) {
@@ -26,22 +33,17 @@ const RESTAURANTS_QUERY = gql`
       totalPages
       totalResults
       results {
-        id
-        name
-        coverImg
-        category {
-          name
-          slug
-        }
-        address
-        isPromoted
+        ...RestaurantParts
       }
     }
   }
+  ${RESTAURANT_FRAGMENTS}
 `;
 
 const Restaurants = () => {
   const [page, setPage] = useState(1);
+  const history = useHistory();
+  const { register, handleSubmit, getValues } = useForm<IFormProps>();
 
   const onCompleted = () => {
     console.log(data);
@@ -63,14 +65,31 @@ const Restaurants = () => {
   const onNextPageClick = () => setPage((current) => current + 1);
   const onPrevPageClick = () => setPage((current) => current - 1);
 
+  const onSearchSubmit = () => {
+    const { searchTerm } = getValues();
+    history.push({
+      pathname: "/search",
+      search: `?term=${searchTerm}`,
+      // URL에 표시되지 않아 보안이 가능하지만, 사용자가 URL 을 공유할 수 없다.
+      // state: {
+      //   searchTerm,
+      // },
+    });
+  };
+
   return (
     <div>
       <Helmet>
-        <title>Restaurant | Nuber Eats</title>
+        <title>Home | Nuber Eats</title>
       </Helmet>
-      <form className=" bg-gray-800 w-full py-28 flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit(onSearchSubmit)}
+        className=" bg-gray-800 w-full py-28 flex items-center justify-center"
+      >
         <input
-          type="search"
+          ref={register({ required: true, min: 3 })}
+          name="searchTerm"
+          type="Search"
           placeholder="식당을 검색히세요..."
           className="input w-3/4 md:w-3/12 rounded-md font-light text-sm border-0"
         />
