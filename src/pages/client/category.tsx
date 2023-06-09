@@ -29,8 +29,7 @@ const CATEGORY_QUERY = gql`
 `;
 
 const Category: React.FC = () => {
-  const params = useParams<ICategoryProps>();
-  const { slug } = params;
+  const { slug } = useParams<ICategoryProps>();
 
   const { data, loading } = useQuery<category, categoryVariables>(
     CATEGORY_QUERY,
