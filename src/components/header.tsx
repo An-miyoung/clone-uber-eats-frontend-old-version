@@ -17,7 +17,7 @@ const Header = () => {
       )}
 
       <header className="py-4">
-        <div className="container w-full px-5 lg:px-0  flex items-center justify-between">
+        <div className="container w-full px-5 flex items-center justify-between">
           <Link to="/">
             <div className="w-24">
               <NuberLogo />

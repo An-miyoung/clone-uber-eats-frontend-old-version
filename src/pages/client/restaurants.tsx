@@ -7,8 +7,9 @@ import {
 import { Helmet } from "react-helmet-async";
 import Restaurant from "../../components/restaurant";
 import { useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import RESTAURANT_FRAGMENTS from "../../fragments";
+import { CATEGORY_FRAGMENTS } from "../../new-fragments";
 
 interface IFormProps {
   searchTerm: string;
@@ -20,11 +21,7 @@ const RESTAURANTS_QUERY = gql`
       ok
       error
       categories {
-        id
-        name
-        coverImg
-        slug
-        restaurantCount
+        ...CategoryParts
       }
     }
     retaurants(input: $input) {
@@ -38,6 +35,7 @@ const RESTAURANTS_QUERY = gql`
     }
   }
   ${RESTAURANT_FRAGMENTS}
+  ${CATEGORY_FRAGMENTS}
 `;
 
 const Restaurants = () => {
@@ -95,23 +93,22 @@ const Restaurants = () => {
         />
       </form>
       {!loading && (
-        <div className="container w-full px-5 lg:px-0 mt-8">
+        <div className="container w-full px-5 mt-8">
           <div className="flex justify-around max-w-xs mx-auto">
             {data?.allCategories.categories?.map((category) => (
-              <div
-                key={category.id}
-                className="flex flex-col group items-center cursor-pointer"
-              >
-                <div
-                  className="w-14 h-14 bg-cover group-hover:bg-gray-300 rounded-full bg-transparent"
-                  style={{
-                    backgroundImage: `url(${category.coverImg})`,
-                  }}
-                ></div>
-                <span className=" text-xs mt-1">
-                  {category.name.toUpperCase()}
-                </span>
-              </div>
+              <Link to={`/category/${category.slug}`} key={category.id}>
+                <div className="flex flex-col group items-center cursor-pointer">
+                  <div
+                    className="w-14 h-14 bg-cover group-hover:bg-gray-300 rounded-full bg-transparent"
+                    style={{
+                      backgroundImage: `url(${category.coverImg})`,
+                    }}
+                  ></div>
+                  <span className=" text-xs mt-1">
+                    {category.name.toUpperCase()}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
           <div className="grid mt-10 gap-x-4 gap-y-7 md:grid-cols-3">
