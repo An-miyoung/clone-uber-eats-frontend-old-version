@@ -46,16 +46,16 @@ const Restaurant = () => {
           backgroundImage: `url(${data?.restaurant.restaurant?.coverImg})`,
         }}
       >
-        <div className="bg-white w-56 lg:w-1/3 py-4 pl-12">
+        <div className="bg-white w-56 lg:w-1/3 py-4 pl-12 opacity-70">
           <h4 className="text-2xl lg:text-4xl mb-3">
             {data?.restaurant.restaurant?.name}
           </h4>
           <Link to={`/category/${data?.restaurant.restaurant?.category?.name}`}>
-            <h5 className=" text-gray-400 text-sm font-light">
+            <h5 className=" text-gray-800 text-sm font-light">
               {data?.restaurant.restaurant?.category?.name}
             </h5>
           </Link>
-          <h6 className=" text-gray-400 text-sm font-light">
+          <h6 className=" text-gray-800 text-sm font-light">
             {data?.restaurant.restaurant?.address}
           </h6>
         </div>
