@@ -12,7 +12,7 @@ import { ME_QUERY } from "../../hooks/useMe";
 
 describe("<Header />", () => {
   it("render without verify banner", async () => {
-    const { debug, findByText, queryByText } = render(
+    const { debug, findByText, queryByText, getByText } = render(
       <MockedProvider
         mocks={[
           {
@@ -38,7 +38,8 @@ describe("<Header />", () => {
       </MockedProvider>
     );
     // data 가 들어오기 전에 무조건 찾아본다. 있기 때문에 통과
-    expect(await findByText("Please verify your email.")).toBeInTheDocument();
+    getByText("Please verify your email.");
+
     //  waitFor 를 사용해서 data가 들어온 후 expect 하도록 기다린다. verified 됐기때문에 통과
     await waitFor(() => {
       expect(queryByText("Please verify your email.")).toBeNull();

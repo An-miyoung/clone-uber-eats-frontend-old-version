@@ -93,6 +93,7 @@ const Login = () => {
             type="email"
             className="input"
             required
+            data-testid="email-input"
           />
           {errors.email?.message && (
             <FormError errorMessage={errors.email?.message} />
