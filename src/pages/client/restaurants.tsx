@@ -93,7 +93,7 @@ const Restaurants = () => {
         />
       </form>
       {!loading && (
-        <div className="container w-full px-5 mt-8">
+        <div className="container w-full px-7 mt-8">
           <div className="flex justify-around max-w-xs mx-auto">
             {data?.allCategories.categories?.map((category) => (
               <Link to={`/category/${category.slug}`} key={category.id}>

@@ -16,7 +16,7 @@ const Restaurant: React.FC<IRestaurantProps> = ({
 }) => {
   return (
     <Link to={`/restaurant/${id}`}>
-      <div className="felx flex-col">
+      <div className="flex flex-col">
         <div
           className="py-20 bg-cover mb-3"
           style={{ backgroundImage: `url(${coverImg})` }}
