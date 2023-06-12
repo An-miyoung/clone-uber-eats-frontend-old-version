@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import Button from "../../components/button";
 import FormError from "../../components/form-error";
 import { MY_RESTAURANTS_QUERY } from "./my-restaurants";
+import { useHistory } from "react-router-dom";
 
 interface IFormProps {
   name: string;
@@ -29,6 +30,7 @@ const CREATE_RESTAURANT_MUTATION = gql`
 
 const AddRestaurants = () => {
   const client = useApolloClient();
+  const history = useHistory();
   const [imgUrl, setImgUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const { register, getValues, formState, errors, handleSubmit } =
@@ -40,36 +42,46 @@ const AddRestaurants = () => {
     const {
       createRestaurant: { ok, restaurantId },
     } = data;
+
     if (ok) {
-      const { name, address, categoryName, file: coverImg } = getValues();
+      const { name, address, categoryName } = getValues();
       setUploading(false);
-      // 1. apollo cache 를 읽어온다
-      const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
-      // 2. apollo cache 에 새로운 레스토랑 객체를 써준다.
-      client.writeQuery({
-        query: MY_RESTAURANTS_QUERY,
-        data: {
-          myRestaurants: {
-            ...queryResult.myRestaurants,
-            restaurants: [
-              {
-                address,
-                category: {
-                  name: categoryName,
-                  __typename: "Category",
-                  __proto__: Object,
+      let queryResult;
+      try {
+        // 1. apollo cache 를 읽어온다
+        queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
+        console.log("cacheData :", queryResult);
+      } catch (error) {
+        console.log(error);
+      }
+      if (queryResult !== null) {
+        // 2. apollo cache 에 새로운 레스토랑 객체를 써준다.
+        client.writeQuery({
+          query: MY_RESTAURANTS_QUERY,
+          data: {
+            myRestaurants: {
+              ...queryResult.myRestaurants,
+              restaurants: [
+                {
+                  address,
+                  category: {
+                    name: categoryName,
+                    __typename: "Category",
+                    __proto__: Object,
+                  },
+                  coverImg: imgUrl,
+                  id: restaurantId,
+                  isPromoted: false,
+                  name,
+                  __typename: "Restaurant",
                 },
-                coverImg: imgUrl,
-                id: restaurantId,
-                isPromoted: false,
-                name,
-                __typename: "Restaurant",
-              },
-              ...queryResult.myRestaurants.restaurants,
-            ],
+                ...queryResult.myRestaurants.restaurants,
+              ],
+            },
           },
-        },
-      });
+        });
+      }
+      history.push("/");
     }
   };
   const [createRestaurantMutation, { data }] = useMutation<
@@ -77,11 +89,12 @@ const AddRestaurants = () => {
     createRestaurantVariables
   >(CREATE_RESTAURANT_MUTATION, {
     onCompleted,
-    refetchQueries: [
-      {
-        query: MY_RESTAURANTS_QUERY,
-      },
-    ],
+    // apollo cache 를 fake 하면서 refetch 할 필요없다. 속도가 느려질 수 있기때문
+    // refetchQueries: [
+    //   {
+    //     query: MY_RESTAURANTS_QUERY,
+    //   },
+    // ],
   });
 
   const onSubmit = async () => {
