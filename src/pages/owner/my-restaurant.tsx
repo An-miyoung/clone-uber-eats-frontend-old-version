@@ -12,7 +12,7 @@ interface IParams {
   id: string;
 }
 
-const MY_RESTAURANT_QUERY = gql`
+export const MY_RESTAURANT_QUERY = gql`
   query myRestaurantDashboard($input: MyRestaurantInput!) {
     myRestaurant(input: $input) {
       ok
@@ -41,8 +41,8 @@ const MyRestaurant = () => {
       },
     },
   });
-  console.log(data);
 
+  console.log(data);
   return (
     <div>
       <div
@@ -55,7 +55,10 @@ const MyRestaurant = () => {
         <h2 className=" text-3xl font-bold mb-6">
           {data?.myRestaurant.restaurant?.name || "Loading..."}
         </h2>
-        <Link to={``} className="mr-8 text-white bg-gray-800 py-3 px-10">
+        <Link
+          to={`/restaurant/${data?.myRestaurant.restaurant?.id}/add-dish`}
+          className="mr-8 text-white bg-gray-800 py-3 px-10"
+        >
           메뉴 만들기 &rarr;
         </Link>
         <Link
