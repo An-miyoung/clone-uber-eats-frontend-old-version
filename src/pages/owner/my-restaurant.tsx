@@ -7,7 +7,6 @@ import {
   VictoryLabel,
   VictoryLine,
   VictoryTheme,
-  VictoryTooltip,
   VictoryVoronoiContainer,
 } from "victory";
 import RESTAURANT_FRAGMENTS from "../../fragments";
@@ -17,6 +16,7 @@ import {
 } from "../../__generated__/myRestaurantDashboard";
 import { DISH_FRAGMENTS, ORDERS_FRAGMENTS } from "../../new-fragments";
 import Dish from "../../components/dish";
+import { Helmet } from "react-helmet-async";
 
 interface IParams {
   id: string;
@@ -56,8 +56,22 @@ const MyRestaurant = () => {
     },
   });
 
+  const triggerPaddle = () => {
+    // @ts-ignore
+    window.Paddle.Setup({ vendor: 172762 });
+    // @ts-ignore
+    window.Paddle.Checkout.open({
+      method: "inline",
+      product: 837210,
+    });
+  };
+
   return (
     <div className="mb-16">
+      <Helmet>
+        <title>{data?.myRestaurant.restaurant?.name || "Loading..."}</title>
+        <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+      </Helmet>
       <div
         className=" bg-gray-700 py-28 bg-center bg-cover"
         style={{
@@ -65,9 +79,6 @@ const MyRestaurant = () => {
         }}
       ></div>
       <div className="container w-full px-7 mt-8">
-        <h2 className=" text-3xl font-bold mb-6">
-          {data?.myRestaurant.restaurant?.name || "Loading..."}
-        </h2>
         <div className="flex">
           <Link
             to={`/restaurant/${data?.myRestaurant.restaurant?.id}/add-dish`}
@@ -75,12 +86,12 @@ const MyRestaurant = () => {
           >
             메뉴 만들기 &rarr;
           </Link>
-          <Link
-            to={``}
+          <span
+            onClick={triggerPaddle}
             className="cursor-pointer text-white bg-lime-700 py-3 px-10"
           >
             프로모션 구매하기 &rarr;
-          </Link>
+          </span>
         </div>
         <div className="mt-8">
           {data?.myRestaurant.restaurant?.menu.length === 0 ? (
