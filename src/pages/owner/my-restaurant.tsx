@@ -1,6 +1,6 @@
-import { gql, useQuery } from "@apollo/client";
-import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { gql, useQuery, useSubscription } from "@apollo/client";
+import React, { useEffect } from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
 import {
   VictoryAxis,
   VictoryChart,
@@ -14,9 +14,14 @@ import {
   myRestaurantDashboard,
   myRestaurantDashboardVariables,
 } from "../../__generated__/myRestaurantDashboard";
-import { DISH_FRAGMENTS, ORDERS_FRAGMENTS } from "../../new-fragments";
+import {
+  DISH_FRAGMENTS,
+  FULL_ORDERS_FRAGMENTS,
+  ORDERS_FRAGMENTS,
+} from "../../new-fragments";
 import Dish from "../../components/dish";
 import { Helmet } from "react-helmet-async";
+import { pendingOrders } from "../../__generated__/pendingOrders";
 
 interface IParams {
   id: string;
@@ -43,8 +48,19 @@ export const MY_RESTAURANT_QUERY = gql`
   ${ORDERS_FRAGMENTS}
 `;
 
+// 새로운 order가 만들어졌는지 subscribe
+const PENDING_ORDERS_SUBSCRIPTION = gql`
+  subscription pendingOrders {
+    pendingOrders {
+      ...FullOrderParts
+    }
+  }
+  ${FULL_ORDERS_FRAGMENTS}
+`;
+
 const MyRestaurant = () => {
   const { id } = useParams<IParams>();
+  const history = useHistory();
   const { data } = useQuery<
     myRestaurantDashboard,
     myRestaurantDashboardVariables
@@ -65,6 +81,17 @@ const MyRestaurant = () => {
       product: 837210,
     });
   };
+
+  const { data: subscriptionData } = useSubscription<pendingOrders>(
+    PENDING_ORDERS_SUBSCRIPTION
+  );
+  console.log(subscriptionData);
+
+  useEffect(() => {
+    if (subscriptionData?.pendingOrders.id) {
+      history.push(`/orders/${subscriptionData.pendingOrders.id}`);
+    }
+  }, [history, subscriptionData]);
 
   return (
     <div className="mb-16">

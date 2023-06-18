@@ -63,7 +63,7 @@ const Dish: React.FC<IDishProps> = ({
         </div>
       </div>
       <div className="flex justify-between pr-5">
-        <h4 className=" font-medium">{price}원</h4>
+        <h4 className=" font-medium">{price.toLocaleString("ko-KR")}원</h4>
         {isCustomer && orderStarted && (
           <button
             onClick={onClick}

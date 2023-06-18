@@ -134,7 +134,7 @@ const Restaurant = () => {
     const {
       createOrder: { ok, orderId },
     } = data;
-    console.log(data);
+
     if (ok) {
       history.push(`/orders/${orderId}`);
     }
@@ -146,6 +146,10 @@ const Restaurant = () => {
     onCompleted,
   });
   const triggerConfirmOrder = () => {
+    // 한개의 주문을 DB 에 보내는 동안 짧은 시차를 두고 2번째 주문을 mutation하지 못하게 한다.
+    if (placingOrder) {
+      return;
+    }
     if (orderItems.length === 0) {
       alert("선택된 상품이 없습니다.");
       return;
