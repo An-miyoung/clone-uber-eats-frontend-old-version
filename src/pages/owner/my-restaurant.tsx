@@ -60,6 +60,7 @@ const PENDING_ORDERS_SUBSCRIPTION = gql`
 
 const MyRestaurant = () => {
   const { id } = useParams<IParams>();
+  console.log(id);
   const history = useHistory();
   const { data } = useQuery<
     myRestaurantDashboard,

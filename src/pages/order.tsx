@@ -1,13 +1,10 @@
-import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import React, { useEffect } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import React, { useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { getOrder, getOrderVariables } from "../__generated__/getOrder";
 import { FULL_ORDERS_FRAGMENTS } from "../new-fragments";
-import {
-  orderUpdates,
-  orderUpdatesVariables,
-} from "../__generated__/orderUpdates";
+import { orderUpdates } from "../__generated__/orderUpdates";
 import useMe from "../hooks/useMe";
 import { editOrder, editOrderVariables } from "../__generated__/editOrder";
 import { OrderStatus, UserRole } from "../__generated__/globalTypes";
@@ -38,7 +35,7 @@ const ORDER_SUBSCRIPTION = gql`
   ${FULL_ORDERS_FRAGMENTS}
 `;
 
-const EDIT_ORDER = gql`
+export const EDIT_ORDER = gql`
   mutation editOrder($input: EditOrderInput!) {
     editOrder(input: $input) {
       ok
@@ -53,29 +50,31 @@ const Order = () => {
   const [editOrderMutation] = useMutation<editOrder, editOrderVariables>(
     EDIT_ORDER
   );
-  const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
-    GET_ORDER,
-    {
-      variables: {
-        input: {
-          id: +id,
+
+  const onBtnClick = useCallback(
+    (newStatus: OrderStatus) => {
+      editOrderMutation({
+        variables: {
+          input: {
+            id: +id,
+            status: newStatus,
+          },
         },
-      },
-    }
+      });
+    },
+    [editOrderMutation, id]
   );
 
-  const onBtnClick = (newStatus: OrderStatus) => {
-    editOrderMutation({
-      variables: {
-        input: {
-          id: +id,
-          status: newStatus,
-        },
-      },
-    });
-  };
-
   // query 와 subscription 을 각각 부를때 사용
+  // const { data } = useQuery<getOrder, getOrderVariables>(GET_ORDER, {
+  //   variables: {
+  //     input: {
+  //       id: +id,
+  //     },
+  //   },
+  // });
+  //
+  // 요리의 진행상황을 subscriptiom 을 통해서 받아서 따로 상태관리를 하면서 render 시켜줘야 한다.
   // const { data: subscriptionData } = useSubscription<
   //   orderUpdates,
   //   orderUpdatesVariables
@@ -87,7 +86,18 @@ const Order = () => {
   //   },
   // });
 
-  // query 와 subscription 같이 부를때
+  // query 와 subscription 같이 부를때 - subscription 이 일어나면 자동 query 내용을 고쳐준다.
+  const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
+    GET_ORDER,
+    {
+      variables: {
+        input: {
+          id: +id,
+        },
+      },
+    }
+  );
+
   useEffect(() => {
     if (data?.getOrder.ok) {
       subscribeToMore({
@@ -117,7 +127,7 @@ const Order = () => {
         },
       });
     }
-  }, [data, id, subscribeToMore]);
+  }, [data, id, subscribeToMore, onBtnClick]);
 
   console.log(data);
 
@@ -181,6 +191,36 @@ const Order = () => {
                     진행상황 : {data?.getOrder.order?.status}
                   </span>
                 )}
+            </>
+          )}
+          {userData?.me.role === UserRole.Delivery && (
+            <>
+              {data?.getOrder.order?.status === OrderStatus.Cooked && (
+                <button
+                  onClick={() => onBtnClick(OrderStatus.PickedUp)}
+                  className="btn bg-lime-600"
+                >
+                  배달시작
+                </button>
+              )}
+              {data?.getOrder.order?.status === OrderStatus.PickedUp && (
+                <button
+                  onClick={() => onBtnClick(OrderStatus.Delivered)}
+                  className="btn bg-lime-600"
+                >
+                  배달완료
+                </button>
+              )}
+            </>
+          )}
+          {data?.getOrder.order?.status === OrderStatus.Delivered && (
+            <>
+              <span className=" text-center mt-2 text-xl text-lime-600">
+                배달이 완료됐습니다.
+              </span>
+              <span className=" text-center  mb-5  text-xl text-lime-600">
+                Nuber Eats를 이용해 주셔서 감사합니다.
+              </span>
             </>
           )}
         </div>

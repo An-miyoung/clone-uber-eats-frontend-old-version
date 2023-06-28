@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import GoogleMapReact from "google-map-react";
+import { gql, useMutation, useSubscription } from "@apollo/client";
+import { FULL_ORDERS_FRAGMENTS } from "../../new-fragments";
+import { cookedOrders } from "../../__generated__/cookedOrders";
+import { useHistory } from "react-router-dom";
+import { takeOrder, takeOrderVariables } from "../../__generated__/takeOrder";
 
 interface ICoords {
   lat: number;
@@ -12,6 +17,24 @@ interface IDriverProps {
   $hover?: any;
 }
 
+const COOKED_ORDER_SUBSCRIPTION = gql`
+  subscription cookedOrders {
+    cookedOrders {
+      ...FullOrderParts
+    }
+  }
+  ${FULL_ORDERS_FRAGMENTS}
+`;
+
+const TAKE_ORDER_MUTATION = gql`
+  mutation takeOrder($input: TakeOrderInput!) {
+    takeOrder(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 const Driver: React.FC<IDriverProps> = (lat, lng) => {
   return <div className="text-2xl"> 🏎</div>;
 };
@@ -20,6 +43,7 @@ const Dashboard = () => {
   const [driverCoords, setDriverCoords] = useState<ICoords>({ lng: 0, lat: 0 });
   const [map, setMap] = useState<google.maps.Map>();
   const [maps, setMaps] = useState<any>();
+  const history = useHistory();
 
   const defaultProps = {
     center: {
@@ -42,7 +66,7 @@ const Dashboard = () => {
     map.panTo(new google.maps.LatLng(driverCoords.lat, driverCoords.lng));
   };
 
-  const getRouteClick = () => {
+  const makeRoute = useCallback(() => {
     if (!map) return;
     const directionService = new google.maps.DirectionsService();
     const directionRenderer = new google.maps.DirectionsRenderer({
@@ -68,6 +92,31 @@ const Dashboard = () => {
         directionRenderer.setDirections(result);
       }
     );
+  }, [driverCoords.lat, driverCoords.lng, map]);
+
+  const { data: cookedOrdersData } = useSubscription<cookedOrders>(
+    COOKED_ORDER_SUBSCRIPTION
+  );
+
+  const onCompleted = (data: takeOrder) => {
+    if (data.takeOrder.ok) {
+      history.push(`/orders/${cookedOrdersData?.cookedOrders.id}`);
+    }
+  };
+
+  const [takeOrderMutation] = useMutation<takeOrder, takeOrderVariables>(
+    TAKE_ORDER_MUTATION,
+    { onCompleted }
+  );
+
+  const triggerMutation = (orderId: number) => {
+    takeOrderMutation({
+      variables: {
+        input: {
+          id: orderId,
+        },
+      },
+    });
   };
 
   useEffect(() => {
@@ -91,6 +140,12 @@ const Dashboard = () => {
     }
   }, [driverCoords, map, maps]);
 
+  useEffect(() => {
+    if (cookedOrdersData?.cookedOrders.id) {
+      makeRoute();
+    }
+  }, [cookedOrdersData, makeRoute]);
+
   return (
     <div>
       <div
@@ -107,7 +162,28 @@ const Dashboard = () => {
           <Driver lat={driverCoords.lat} lng={driverCoords.lng} />
         </GoogleMapReact>
       </div>
-      <button onClick={getRouteClick}>경로보기</button>
+      <div className=" max-w-screen-sm mx-auto bg-white relative -top-10 shadow-lg py-8 px-5">
+        {cookedOrdersData?.cookedOrders.restaurant ? (
+          <>
+            <h1 className=" text-center text-2xl font-medium">
+              새로운 배달요청
+            </h1>
+            <h1 className=" text-center text-xl font-medium mt-2">
+              빨리 클릭하세요 @ {cookedOrdersData.cookedOrders.restaurant?.name}
+            </h1>
+            <button
+              onClick={() => triggerMutation(cookedOrdersData.cookedOrders.id)}
+              className="btn w-full bg-lime-600 mt-4 text-xl font-medium"
+            >
+              수락 &rarr;
+            </button>
+          </>
+        ) : (
+          <h1 className=" text-center text-2xl font-medium">
+            새로운 배달요청이 없습니다.
+          </h1>
+        )}
+      </div>
     </div>
   );
 };

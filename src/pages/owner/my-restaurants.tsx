@@ -1,10 +1,12 @@
-import { gql, useQuery } from "@apollo/client";
-import React from "react";
+import { gql, useQuery, useSubscription } from "@apollo/client";
+import React, { useEffect } from "react";
 import RESTAURANT_FRAGMENTS from "../../fragments";
 import { myRestaurants } from "../../__generated__/myRestaurants";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Restaurant from "../../components/restaurant";
+import { FULL_ORDERS_FRAGMENTS } from "../../new-fragments";
+import { pendingOrders } from "../../__generated__/pendingOrders";
 
 export const MY_RESTAURANTS_QUERY = gql`
   query myRestaurants {
@@ -19,8 +21,28 @@ export const MY_RESTAURANTS_QUERY = gql`
   ${RESTAURANT_FRAGMENTS}
 `;
 
+// 새로운 order가 만들어졌는지 subscribe
+const PENDING_ORDERS_SUBSCRIPTION = gql`
+  subscription pendingOrders {
+    pendingOrders {
+      ...FullOrderParts
+    }
+  }
+  ${FULL_ORDERS_FRAGMENTS}
+`;
+
 const MyRestaurants = () => {
+  const history = useHistory();
   const { data } = useQuery<myRestaurants>(MY_RESTAURANTS_QUERY);
+  const { data: subscriptionData } = useSubscription<pendingOrders>(
+    PENDING_ORDERS_SUBSCRIPTION
+  );
+
+  useEffect(() => {
+    if (subscriptionData?.pendingOrders.id) {
+      history.push(`/orders/${subscriptionData.pendingOrders.id}`);
+    }
+  }, [history, subscriptionData]);
 
   return (
     <div>
